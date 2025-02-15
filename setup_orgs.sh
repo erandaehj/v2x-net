@@ -8,7 +8,7 @@ else
     echo "Docker service is already running."
 fi
 
-git switch -c local
+git switch local
 
 export PATH=${PWD}/bin:$PATH
 
