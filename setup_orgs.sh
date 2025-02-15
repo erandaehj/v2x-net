@@ -8,7 +8,7 @@ else
     echo "Docker service is already running."
 fi
 
-git checkout local
+git switch -c local
 
 export PATH=${PWD}/bin:$PATH
 
@@ -24,13 +24,17 @@ echo -e "\n======Setting up Org3======\n"
 echo -e "\n======Setting up Orderer======\n"
 (cd orderer; ./1_enrollAdminAndMSP.sh; ./2_artifact.sh)
  
-# echo -e "\n======Creating Channel======\n"
-# (cd org1; ./3_createChannel.sh)
+echo -e "\n======Creating Channel======\n"
+(cd org1; ./3_createChannel.sh)
  
-# echo -e "\n======Org 2 Joining Channel======\n"
+echo -e "\n======Org 2 Joining Channel======\n"
 
-# (cd org2; ./3_joinChannel.sh)
+(cd org2; ./3_joinChannel.sh)
 
-# echo -e "\n======Org 3 Joining Channel======\n"
+echo -e "\n======Org 3 Joining Channel======\n"
 
-# (cd org3; ./3_joinChannel.sh)
+(cd org3; ./3_joinChannel.sh)
+
+echo -e "\n======Deploy Chaincode ======\n"
+
+(cd deployChaincode; ./deployOrg1_GO.sh;./deployOrg2_GO.sh;)
