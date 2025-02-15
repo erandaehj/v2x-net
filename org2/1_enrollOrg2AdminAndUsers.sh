@@ -5,7 +5,7 @@ setupOrg2CA() {
   docker-compose -f ca-org2.yaml up -d
 
   sleep 10
-  mkdir -p /crypto-config-ca/peerOrganizations/org2.example.com/
+  mkdir -p ./crypto-config-ca/peerOrganizations/org2.example.com/
   export FABRIC_CA_CLIENT_HOME=${PWD}/crypto-config-ca/peerOrganizations/org2.example.com/
 }
 createCertificatOrg2() {
