@@ -37,4 +37,4 @@ echo -e "\n======Org 3 Joining Channel======\n"
 
 echo -e "\n======Deploy Chaincode ======\n"
 
-(cd deployChaincode; ./deployOrg1_GO.sh;./deployOrg2_GO.sh;)
+(cd deployChaincode; ./deployOrg1_GO.sh $1;./deployOrg2_GO.sh $1;)
