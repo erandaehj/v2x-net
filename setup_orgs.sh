@@ -8,6 +8,8 @@ else
     echo "Docker service is already running."
 fi
 
+git checkout local
+
 export PATH=${PWD}/bin:$PATH
 
 echo -e "======Setting up Org1======\n"
