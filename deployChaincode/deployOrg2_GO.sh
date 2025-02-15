@@ -5,7 +5,7 @@ chaincodeInfo() {
   export CC_RUNTIME_LANGUAGE="golang"
   export CC_VERSION="1"
   export CC_SRC_PATH=../chaincode/auction
-  export CC_NAME="fabcargo"
+  export CC_NAME="auction"
   export CC_SEQUENCE="1"
 
 }
