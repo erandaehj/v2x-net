@@ -4,14 +4,14 @@ chaincodeInfo() {
   export CHANNEL_NAME="mychannel"
   export CC_RUNTIME_LANGUAGE="golang"
   export CC_VERSION="1"
-  export CC_SRC_PATH=../chaincode/$1
-  export CC_NAME=$1
+  export CC_SRC_PATH=../chaincode/auction
+  export CC_NAME=auction
   export CC_SEQUENCE="1"
 
 }
 preSetupGO() {
   echo Vendoring Go dependencies ...
-  pushd ../chaincode/$1
+  pushd ../chaincode/auction
   GO111MODULE=on go mod vendor
   popd
   echo Finished vendoring Go dependencies
@@ -111,17 +111,17 @@ lifecycleCommands() {
   sleep 2
   queryInstalled
   sleep 2
-  # approveForMyOrg1
-  # sleep 2
-  # getblock
-  # checkCommitReadyness
-  # sleep 2
-  # commitChaincodeDefination
-  # sleep 2
-  # queryCommitted
-  # sleep 2
-  # chaincodeInvokeInit
-  # sleep 10
+  approveForMyOrg1
+  sleep 2
+  getblock
+  checkCommitReadyness
+  sleep 2
+  commitChaincodeDefination
+  sleep 2
+  queryCommitted
+  sleep 2
+  chaincodeInvokeInit
+  sleep 10
 }
 getInstallChaincodes() {
 
