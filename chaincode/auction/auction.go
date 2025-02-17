@@ -3,6 +3,7 @@ package main
 import (
 	"encoding/json"
 	"fmt"
+	"log"
 
 	"github.com/hyperledger/fabric-contract-api-go/contractapi"
 )
@@ -166,4 +167,15 @@ func (s *AuctionContract) QueryAsk(ctx contractapi.TransactionContextInterface, 
 	}
 
 	return &ask, nil
+}
+
+func main() {
+	auctionsc, err := contractapi.NewChaincode(&AuctionContract{})
+	if err != nil {
+		log.Panicf("Error creating abac chaincode: %v", err)
+	}
+
+	if err := auctionsc.Start(); err != nil {
+		log.Panicf("Error starting abac chaincode: %v", err)
+	}
 }
