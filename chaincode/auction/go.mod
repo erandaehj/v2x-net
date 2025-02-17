@@ -1,6 +1,6 @@
 module auction
 
-go 1.23
+go 1.23.6
 
 require (
 	github.com/hyperledger/fabric-chaincode-go v0.0.0-20240704073638-9fb89180dc17
