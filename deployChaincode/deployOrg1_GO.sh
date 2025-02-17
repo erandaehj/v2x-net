@@ -83,7 +83,7 @@ queryCommitted() {
 }
 chaincodeInvokeInit() {
 
-  peer chaincode invoke -o localhost:7050 --ordererTLSHostnameOverride orderer.example.com --tls --cafile $ORDERER_CA --channelID $CHANNEL_NAME -n ${CC_NAME} --peerAddresses localhost:7051 --tlsRootCertFiles $PEER0_ORG1_CA --isInit -c '{"function": "initLedger","Args":[]}'
+  peer chaincode invoke -o localhost:7050 --ordererTLSHostnameOverride orderer.example.com --tls --cafile $ORDERER_CA --channelID $CHANNEL_NAME -n ${CC_NAME} --peerAddresses localhost:7051 --tlsRootCertFiles $PEER0_ORG1_CA --isInit -c '{"function": "InitLedger","Args":[]}'
 
 }
 
@@ -133,6 +133,6 @@ preSetupGO
 chaincodeInfo
 setGlobalsForPeer0Org1
 lifecycleCommands
-insertTransaction
-readTransaction
+# insertTransaction
+# readTransaction
 getInstallChaincodes

@@ -103,6 +103,6 @@ preSetupGO
 chaincodeInfo
 setGlobalsForPeer0Org2
 lifecycleCommands
-insertTransaction
-readTransaction
+# insertTransaction
+# readTransaction
 getInstallChaincodes
