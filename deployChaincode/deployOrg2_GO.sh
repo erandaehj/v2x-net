@@ -65,23 +65,6 @@ checkCommitReadyness() {
 
 }
 
-insertTransaction() {
-
-  peer chaincode invoke -o localhost:7050 --ordererTLSHostnameOverride orderer.example.com --tls $CORE_PEER_TLS_ENABLED --cafile $ORDERER_CA -C $CHANNEL_NAME -n ${CC_NAME} --peerAddresses localhost:9051 --tlsRootCertFiles $PEER0_ORG2_CA -c '{"function": "createCar", "Args":["CAR102","Audi","R8","Black", "CM"]}'
-
-  sleep 2
-}
-readTransaction() {
-  echo "Reading a transaction"
-
-  # Query all cars
-
-  peer chaincode query -C $CHANNEL_NAME -n ${CC_NAME} -c '{"Args":["queryAllCars"]}'
-
-  # Query Car by Id
-  peer chaincode query -C $CHANNEL_NAME -n ${CC_NAME} -c '{"function": "queryCar","Args":["CAR0"]}'
-}
-
 lifecycleCommands() {
   packageChaincode
   sleep 2
@@ -90,7 +73,7 @@ lifecycleCommands() {
   queryInstalled
   sleep 2
   approveForMyOrg2
-  sleep 2
+  sleep 10
   checkCommitReadyness
 
 }
@@ -103,6 +86,4 @@ preSetupGO
 chaincodeInfo
 setGlobalsForPeer0Org2
 lifecycleCommands
-# insertTransaction
-# readTransaction
 getInstallChaincodes
