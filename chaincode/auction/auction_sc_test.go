@@ -1,7 +1,11 @@
 package main
 
 import (
+	"crypto/sha256"
+	"encoding/hex"
+	"strconv"
 	"testing"
+	"time"
 
 	"github.com/hyperledger/fabric-chaincode-go/shim"
 	"github.com/hyperledger/fabric-contract-api-go/contractapi"
@@ -41,51 +45,40 @@ func (m *MockTransactionContext) GetStub() shim.ChaincodeStubInterface {
 }
 
 // TestCreateBid tests the CreateBid function
-func TestCreateBid(t *testing.T) {
+func TestAuctionLifecycle(t *testing.T) {
 	contract := new(AuctionContract)
 	mockStub := &MockChaincodeStub{data: make(map[string][]byte)}
 	mockContext := &MockTransactionContext{stub: mockStub}
 
-	// Create a bid with ID "BID001" and amount 50
-	err := contract.CreateBid(mockContext, "BID001", 50)
+	// Create a bid with ID "SLOT001"
+	bidDuration := 5
+	revealDuration := 5
+	assetName := "SLOT001"
+	nonce := "nonce"
+	bidVal := 1000
+	clientId := "client1"
+	hash := sha256.New()
+	hash.Write([]byte(strconv.Itoa(bidVal) + nonce))
+	hashValue := hash.Sum(nil)
+	hashBid := hex.EncodeToString(hashValue)
+
+	err := contract.InitAuction(mockContext, assetName, bidDuration, revealDuration)
 	require.NoError(t, err)
 
-	// Query the bid back to verify it exists
-	bid, err := contract.QueryBid(mockContext, "BID001")
-	require.NoError(t, err)
-	require.Equal(t, "BID001", bid.ID)
-	require.Equal(t, 50, bid.Amount)
-}
-
-// TestCreateAsk tests the CreateAsk function
-func TestCreateAsk(t *testing.T) {
-	contract := new(AuctionContract)
-	mockStub := &MockChaincodeStub{data: make(map[string][]byte)}
-	mockContext := &MockTransactionContext{stub: mockStub}
-
-	// Create an ask with ID "ASK001" and amount 60
-	err := contract.CreateAsk(mockContext, "ASK001", 60)
+	err = contract.PlaceBid(mockContext, assetName, clientId, hashBid)
 	require.NoError(t, err)
 
-	// Query the ask back to verify it exists
-	ask, err := contract.QueryAsk(mockContext, "ASK001")
+	err = contract.PlaceAsk(mockContext, assetName, clientId, 500)
 	require.NoError(t, err)
-	require.Equal(t, "ASK001", ask.ID)
-	require.Equal(t, 60, ask.Amount)
-}
 
-// TestExecuteTransaction tests matching a bid and an ask
-func TestExecuteTransaction(t *testing.T) {
-	contract := new(AuctionContract)
-	mockStub := &MockChaincodeStub{data: make(map[string][]byte)}
-	mockContext := &MockTransactionContext{stub: mockStub}
+	time.Sleep(6 * time.Second)
 
-	// Create a bid and ask
-	contract.CreateBid(mockContext, "BID001", 70)
-	contract.CreateAsk(mockContext, "ASK001", 60)
-
-	// Test executing the transaction
-	result, err := contract.ExecuteTransaction(mockContext, "BID001", "ASK001")
+	err = contract.RevealBid(mockContext, assetName, clientId, bidVal, nonce)
 	require.NoError(t, err)
-	require.Contains(t, result, "Transaction executed")
+
+	time.Sleep(6 * time.Second)
+
+	err = contract.AwardSlot(mockContext, assetName)
+	require.NoError(t, err)
+
 }

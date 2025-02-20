@@ -1,9 +1,12 @@
 package main
 
 import (
+	"crypto/sha256"
+	"encoding/hex"
 	"encoding/json"
 	"fmt"
-	"log"
+	"strconv"
+	"time"
 
 	"github.com/hyperledger/fabric-contract-api-go/contractapi"
 )
@@ -12,170 +15,145 @@ type AuctionContract struct {
 	contractapi.Contract
 }
 
-// Bid represents a bid in the auction
 type Bid struct {
-	ID     string `json:"id"`
-	Amount int    `json:"amount"`
+	ClientID string `json:"clientID"`
+	BidHash  string `json:"bidHash"`
+	BidValue int    `json:"bidValue,omitempty"`
+	Nonce    string `json:"nonce,omitempty"`
+	Revealed bool   `json:"revealed"`
 }
 
-// Ask represents an ask in the auction
-type Ask struct {
-	ID     string `json:"id"`
-	Amount int    `json:"amount"`
+type Auction struct {
+	Asset     string          `json:"asset"`
+	Bids      map[string]*Bid `json:"bids"`
+	Asks      map[string]int  `json:"asks"`
+	StartTime int64           `json:"startTime"`
+	BidEnd    int64           `json:"bidEnd"`
+	RevealEnd int64           `json:"revealEnd"`
+	Awarded   bool            `json:"awarded"`
+	Winner    string          `json:"winner,omitempty"`
 }
 
-// InitLedger initializes the auction with some predefined asks and bids
 func (s *AuctionContract) InitLedger(ctx contractapi.TransactionContextInterface) error {
-	// Initialize some dummy data
-	bids := []Bid{
-		{ID: "BID001", Amount: 50},
-		{ID: "BID002", Amount: 80},
-		{ID: "BID003", Amount: 100},
-	}
-	asks := []Ask{
-		{ID: "ASK001", Amount: 60},
-		{ID: "ASK002", Amount: 90},
-		{ID: "ASK003", Amount: 110},
-	}
-
-	// Store bids
-	for _, bid := range bids {
-		bidJSON, err := json.Marshal(bid)
-		if err != nil {
-			return err
-		}
-		err = ctx.GetStub().PutState("BID_"+bid.ID, bidJSON)
-		if err != nil {
-			return fmt.Errorf("failed to put bid %s to world state: %v", bid.ID, err)
-		}
-	}
-
-	// Store asks
-	for _, ask := range asks {
-		askJSON, err := json.Marshal(ask)
-		if err != nil {
-			return err
-		}
-		err = ctx.GetStub().PutState("ASK_"+ask.ID, askJSON)
-		if err != nil {
-			return fmt.Errorf("failed to put ask %s to world state: %v", ask.ID, err)
-		}
-	}
-
 	return nil
 }
 
-// CreateBid creates a new bid
-func (s *AuctionContract) CreateBid(ctx contractapi.TransactionContextInterface, bidID string, amount int) error {
-	bid := Bid{
-		ID:     bidID,
-		Amount: amount,
+func (s *AuctionContract) InitAuction(ctx contractapi.TransactionContextInterface, asset string, bidDuration, revealDuration int) error {
+	startTime := time.Now().Unix()
+	auction := Auction{
+		Asset:     asset,
+		Bids:      make(map[string]*Bid),
+		Asks:      make(map[string]int),
+		StartTime: startTime,
+		BidEnd:    startTime + int64(bidDuration),
+		RevealEnd: startTime + int64(bidDuration) + int64(revealDuration),
+		Awarded:   false,
 	}
-
-	bidJSON, err := json.Marshal(bid)
-	if err != nil {
-		return err
-	}
-
-	return ctx.GetStub().PutState("BID_"+bidID, bidJSON)
+	auctionBytes, _ := json.Marshal(auction)
+	return ctx.GetStub().PutState(asset, auctionBytes)
 }
 
-// CreateAsk creates a new ask
-func (s *AuctionContract) CreateAsk(ctx contractapi.TransactionContextInterface, askID string, amount int) error {
-	ask := Ask{
-		ID:     askID,
-		Amount: amount,
+func (s *AuctionContract) PlaceBid(ctx contractapi.TransactionContextInterface, asset, clientID, bidHash string) error {
+	auctionBytes, _ := ctx.GetStub().GetState(asset)
+	if auctionBytes == nil {
+		return fmt.Errorf("Auction not found")
 	}
 
-	askJSON, err := json.Marshal(ask)
-	if err != nil {
-		return err
+	var auction Auction
+	json.Unmarshal(auctionBytes, &auction)
+	if time.Now().Unix() > auction.BidEnd {
+		return fmt.Errorf("Bidding phase over")
 	}
 
-	return ctx.GetStub().PutState("ASK_"+askID, askJSON)
+	auction.Bids[clientID] = &Bid{ClientID: clientID, BidHash: bidHash}
+	auctionBytes, _ = json.Marshal(auction)
+	return ctx.GetStub().PutState(asset, auctionBytes)
 }
 
-// ExecuteTransaction tries to match a bid with an ask
-func (s *AuctionContract) ExecuteTransaction(ctx contractapi.TransactionContextInterface, bidID string, askID string) (string, error) {
-	// Retrieve the bid and ask from the state
-	bidJSON, err := ctx.GetStub().GetState("BID_" + bidID)
-	if err != nil || bidJSON == nil {
-		return "", fmt.Errorf("bid %s not found", bidID)
+func (s *AuctionContract) PlaceAsk(ctx contractapi.TransactionContextInterface, asset, clientID string, ask int) error {
+	auctionBytes, _ := ctx.GetStub().GetState(asset)
+	if auctionBytes == nil {
+		return fmt.Errorf("Auction not found")
 	}
 
-	askJSON, err := ctx.GetStub().GetState("ASK_" + askID)
-	if err != nil || askJSON == nil {
-		return "", fmt.Errorf("ask %s not found", askID)
+	var auction Auction
+	json.Unmarshal(auctionBytes, &auction)
+
+	auction.Asks[clientID] = ask
+	auctionBytes, _ = json.Marshal(auction)
+	return ctx.GetStub().PutState(asset, auctionBytes)
+}
+
+func (s *AuctionContract) RevealBid(ctx contractapi.TransactionContextInterface, asset, clientID string, bidValue int, nonce string) error {
+	auctionBytes, _ := ctx.GetStub().GetState(asset)
+	if auctionBytes == nil {
+		return fmt.Errorf("Auction not found")
 	}
 
-	var bid Bid
-	err = json.Unmarshal(bidJSON, &bid)
-	if err != nil {
-		return "", fmt.Errorf("failed to unmarshal bid %s: %v", bidID, err)
+	var auction Auction
+	json.Unmarshal(auctionBytes, &auction)
+	if time.Now().Unix() <= auction.BidEnd || time.Now().Unix() > auction.RevealEnd {
+		return fmt.Errorf("Not in the reveal phase")
 	}
 
-	var ask Ask
-	err = json.Unmarshal(askJSON, &ask)
-	if err != nil {
-		return "", fmt.Errorf("failed to unmarshal ask %s: %v", askID, err)
+	bid, exists := auction.Bids[clientID]
+	if !exists {
+		return fmt.Errorf("No bid found")
 	}
 
-	// Perform the transaction if a match is found
-	if bid.Amount >= ask.Amount {
-		// A match happens, execute the transaction (e.g., transferring assets)
-		err = ctx.GetStub().DelState("BID_" + bidID)
-		if err != nil {
-			return "", fmt.Errorf("failed to delete bid %s: %v", bidID, err)
+	hash := sha256.New()
+	hash.Write([]byte(strconv.Itoa(bidValue) + nonce))
+	hashValue := hash.Sum(nil)
+	expectedHash := hex.EncodeToString(hashValue)
+	if bid.BidHash != expectedHash {
+		return fmt.Errorf("Hash mismatch")
+	}
+
+	bid.BidValue = bidValue
+	bid.Nonce = nonce
+	bid.Revealed = true
+	auctionBytes, _ = json.Marshal(auction)
+	return ctx.GetStub().PutState(asset, auctionBytes)
+}
+
+func (s *AuctionContract) AwardSlot(ctx contractapi.TransactionContextInterface, asset string) error {
+	auctionBytes, _ := ctx.GetStub().GetState(asset)
+	if auctionBytes == nil {
+		return fmt.Errorf("Auction not found")
+	}
+
+	var auction Auction
+	json.Unmarshal(auctionBytes, &auction)
+	if time.Now().Unix() <= auction.RevealEnd {
+		return fmt.Errorf("Reveal phase not over")
+	}
+	if auction.Awarded {
+		return fmt.Errorf("Auction already awarded")
+	}
+
+	var highestBidder string
+	var highestBid int
+	for clientID, bid := range auction.Bids {
+		if bid.Revealed && bid.BidValue > highestBid {
+			highestBid = bid.BidValue
+			highestBidder = clientID
 		}
-		err = ctx.GetStub().DelState("ASK_" + askID)
-		if err != nil {
-			return "", fmt.Errorf("failed to delete ask %s: %v", askID, err)
-		}
-		return fmt.Sprintf("Transaction executed between Bid %s and Ask %s for amount %d", bidID, askID, bid.Amount), nil
 	}
 
-	return "", fmt.Errorf("no match found for Bid %s and Ask %s", bidID, askID)
-}
-
-// QueryBid retrieves a bid by ID
-func (s *AuctionContract) QueryBid(ctx contractapi.TransactionContextInterface, bidID string) (*Bid, error) {
-	bidJSON, err := ctx.GetStub().GetState("BID_" + bidID)
-	if err != nil || bidJSON == nil {
-		return nil, fmt.Errorf("bid %s not found", bidID)
-	}
-
-	var bid Bid
-	err = json.Unmarshal(bidJSON, &bid)
-	if err != nil {
-		return nil, fmt.Errorf("failed to unmarshal bid %s: %v", bidID, err)
-	}
-
-	return &bid, nil
-}
-
-// QueryAsk retrieves an ask by ID
-func (s *AuctionContract) QueryAsk(ctx contractapi.TransactionContextInterface, askID string) (*Ask, error) {
-	askJSON, err := ctx.GetStub().GetState("ASK_" + askID)
-	if err != nil || askJSON == nil {
-		return nil, fmt.Errorf("ask %s not found", askID)
-	}
-
-	var ask Ask
-	err = json.Unmarshal(askJSON, &ask)
-	if err != nil {
-		return nil, fmt.Errorf("failed to unmarshal ask %s: %v", askID, err)
-	}
-
-	return &ask, nil
+	auction.Winner = highestBidder
+	auction.Awarded = true
+	auctionBytes, _ = json.Marshal(auction)
+	return ctx.GetStub().PutState(asset, auctionBytes)
 }
 
 func main() {
-	auctionsc, err := contractapi.NewChaincode(&AuctionContract{})
+	chaincode, err := contractapi.NewChaincode(new(AuctionContract))
 	if err != nil {
-		log.Panicf("Error creating abac chaincode: %v", err)
+		fmt.Printf("Error creating chaincode: %s", err)
+		return
 	}
 
-	if err := auctionsc.Start(); err != nil {
-		log.Panicf("Error starting abac chaincode: %v", err)
+	if err := chaincode.Start(); err != nil {
+		fmt.Printf("Error starting chaincode: %s", err)
 	}
 }
