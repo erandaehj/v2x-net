@@ -4,14 +4,14 @@ chaincodeInfo() {
   export CHANNEL_NAME="mychannel"
   export CC_RUNTIME_LANGUAGE="golang"
   export CC_VERSION="1"
-  export CC_SRC_PATH=../chaincode/auction
-  export CC_NAME=auction
+  export CC_SRC_PATH=../chaincode/overtaking
+  export CC_NAME=overtakingcc
   export CC_SEQUENCE="1"
 
 }
 preSetupGO() {
   echo Vendoring Go dependencies ...
-  pushd ../chaincode/auction
+  pushd ../chaincode/overtaking
   GO111MODULE=on go mod vendor
   popd
   echo Finished vendoring Go dependencies

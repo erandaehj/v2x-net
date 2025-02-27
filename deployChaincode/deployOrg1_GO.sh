@@ -4,14 +4,14 @@ chaincodeInfo() {
   export CHANNEL_NAME="mychannel"
   export CC_RUNTIME_LANGUAGE="golang"
   export CC_VERSION="1"
-  export CC_SRC_PATH=../chaincode/auction
-  export CC_NAME=auction
+  export CC_SRC_PATH=../chaincode/overtaking
+  export CC_NAME=overtakingcc
   export CC_SEQUENCE="1"
 
 }
 preSetupGO() {
   echo Vendoring Go dependencies ...
-  pushd ../chaincode/auction
+  pushd ../chaincode/overtaking
   GO111MODULE=on go mod vendor
   popd
   echo Finished vendoring Go dependencies
@@ -87,12 +87,7 @@ chaincodeInvokeInit() {
 
 }
 
-initAuctionTransaction() {
 
-  peer chaincode invoke -o localhost:7050 --ordererTLSHostnameOverride orderer.example.com --tls $CORE_PEER_TLS_ENABLED --cafile $ORDERER_CA -C $CHANNEL_NAME -n ${CC_NAME} --peerAddresses localhost:7051 --tlsRootCertFiles $PEER0_ORG1_CA -c '{"function": "InitAuction", "Args":["SLOT001", "30", "30"]}'
-
-  sleep 2
-}
 
 
 
@@ -125,5 +120,4 @@ preSetupGO
 chaincodeInfo
 setGlobalsForPeer0Org1
 lifecycleCommands
-initAuctionTransaction
 getInstallChaincodes
