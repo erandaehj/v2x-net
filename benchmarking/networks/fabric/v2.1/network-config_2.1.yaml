@@ -24,7 +24,7 @@ clients:
         cryptoStore:
           path: /tmp/hfc-cvs/org1
       clientPrivateKey:
-        path: ../org1/crypto-config-ca/peerOrganizations/org1.example.com/users/User1@org1.example.com/msp/keystore/2b4b105355d358cb681366e0b06a59f0829f1c9f4ae91a22a95876941c391394_sk
+        path: ../org1/crypto-config-ca/peerOrganizations/org1.example.com/users/User1@org1.example.com/msp/keystore/b3f58487a2be0aac25bcdc4b09d3d6e3bfa6400f6c36233d623f273d9b4faebf_sk
       clientSignedCert:
         path: ../org1/crypto-config-ca/peerOrganizations/org1.example.com/users/User1@org1.example.com/msp/signcerts/cert.pem
 
@@ -69,7 +69,7 @@ organizations:
     certificateAuthorities:
       - ca.org2.example.com
     adminPrivateKey:
-      path: ../org2/crypto-config-ca/peerOrganizations/org2.example.com/users/Admin@org2.example.com/msp/keystore/72760fd3cdb35fc65241d5a82a99c04864d00d624569d7d27c46c7d49fe0cbd9_sk
+      path: ../org2/crypto-config-ca/peerOrganizations/org2.example.com/users/Admin@org2.example.com/msp/keystore/192a73ec66c886d0c7156dbed250011a6f6ebf4b1538dc2d9b93b617211402d6_sk
     signedCert:
       path: ../org2/crypto-config-ca/peerOrganizations/org2.example.com/users/Admin@org2.example.com/msp/signcerts/cert.pem
 
