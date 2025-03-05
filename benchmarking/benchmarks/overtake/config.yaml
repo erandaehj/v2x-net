@@ -10,7 +10,7 @@ test:
         opts:
           transactionLoad: 5
       workload:
-        module: benchmarks/overtake/overtakeBenchmark.js
+        module: /home/eranda/v2x-net/benchmarking/benchmarks/overtake/overtakeBenchmark.js
         arguments:
           vehicleId: "OV001"
           leadVehicleId: "LV001"

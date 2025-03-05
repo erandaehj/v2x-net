@@ -24,9 +24,9 @@ clients:
         cryptoStore:
           path: /tmp/hfc-cvs/org1
       clientPrivateKey:
-        path: ../org1/crypto-config-ca/peerOrganizations/org1.example.com/users/User1@org1.example.com/msp/keystore/b3f58487a2be0aac25bcdc4b09d3d6e3bfa6400f6c36233d623f273d9b4faebf_sk
+        path: /home/eranda/v2x-net/org1/crypto-config-ca/peerOrganizations/org1.example.com/users/User1@org1.example.com/msp/keystore/8d213f00cbdf4f6dd70a21f84584f5ca124d6b25982aba0faf680261d850778c_sk
       clientSignedCert:
-        path: ../org1/crypto-config-ca/peerOrganizations/org1.example.com/users/User1@org1.example.com/msp/signcerts/cert.pem
+        path: /home/eranda/v2x-net/org1/crypto-config-ca/peerOrganizations/org1.example.com/users/User1@org1.example.com/msp/signcerts/cert.pem
 
 channels:
   mychannel:
@@ -42,11 +42,9 @@ channels:
         eventSource: true
 
     contracts:
-    - id: fabcargo
+    - id: overtakingcc
       version: "1"
       language: golang
-
-
 
 organizations:
   Org1:
@@ -57,9 +55,9 @@ organizations:
     certificateAuthorities:
       - ca.org1.example.com
     adminPrivateKey:
-      path: ../org1/crypto-config-ca/peerOrganizations/org1.example.com/users/Admin@org1.example.com/msp/keystore/4bf74df2307c82693817f3128673ce8cf21580f8e21771ae9ba814d62f2b914f_sk
+      path: /home/eranda/v2x-net/org1/crypto-config-ca/peerOrganizations/org1.example.com/users/Admin@org1.example.com/msp/keystore/83639a42aa57d87ac3b3c1e62dea8c7cba37383324d2481fefb461ca801c6c534_sk
     signedCert:
-      path: ../org1/crypto-config-ca/peerOrganizations/org1.example.com/users/Admin@org1.example.com/msp/signcerts/cert.pem
+      path: /home/eranda/v2x-net/org1/crypto-config-ca/peerOrganizations/org1.example.com/users/Admin@org1.example.com/msp/signcerts/cert.pem
 
   Org2:
     mspid: Org2MSP
@@ -69,9 +67,9 @@ organizations:
     certificateAuthorities:
       - ca.org2.example.com
     adminPrivateKey:
-      path: ../org2/crypto-config-ca/peerOrganizations/org2.example.com/users/Admin@org2.example.com/msp/keystore/192a73ec66c886d0c7156dbed250011a6f6ebf4b1538dc2d9b93b617211402d6_sk
+      path: /home/eranda/v2x-net/org2/crypto-config-ca/peerOrganizations/org2.example.com/users/Admin@org2.example.com/msp/keystore/0516b4f51b1d80cd1976b989b2f26f8cd2852dfd44deb27dc14ce44d98b5d805_sk
     signedCert:
-      path: ../org2/crypto-config-ca/peerOrganizations/org2.example.com/users/Admin@org2.example.com/msp/signcerts/cert.pem
+      path: /home/eranda/v2x-net/org2/crypto-config-ca/peerOrganizations/org2.example.com/users/Admin@org2.example.com/msp/signcerts/cert.pem
 
 orderers:
   orderer.example.com:
@@ -79,19 +77,19 @@ orderers:
     grpcOptions:
       ssl-target-name-override: orderer.example.com
     tlsCACerts:
-      path: ../orderer/crypto-config-ca/ordererOrganizations/example.com/orderers/orderer.example.com/msp/tlscacerts/tlsca.example.com-cert.pem
+      path: /home/eranda/v2x-net/orderer/crypto-config-ca/ordererOrganizations/example.com/orderers/orderer.example.com/msp/tlscacerts/tlsca.example.com-cert.pem
   orderer2.example.com:
     url: grpcs://localhost:8050
     grpcOptions:
       ssl-target-name-override: orderer2.example.com
     tlsCACerts:
-      path: ../orderer/crypto-config-ca/ordererOrganizations/example.com/orderers/orderer2.example.com/msp/tlscacerts/tlsca.example.com-cert.pem 
+      path: /home/eranda/v2x-net/orderer/crypto-config-ca/ordererOrganizations/example.com/orderers/orderer2.example.com/msp/tlscacerts/tlsca.example.com-cert.pem 
   orderer3.example.com:
     url: grpcs://localhost:9050
     grpcOptions:
       ssl-target-name-override: orderer3.example.com
     tlsCACerts:
-      path: ../orderer/crypto-config-ca/ordererOrganizations/example.com/orderers/orderer3.example.com/msp/tlscacerts/tlsca.example.com-cert.pem
+      path: /home/eranda/v2x-net/orderer/crypto-config-ca/ordererOrganizations/example.com/orderers/orderer3.example.com/msp/tlscacerts/tlsca.example.com-cert.pem
 
 peers:
   peer0.org1.example.com:
@@ -100,7 +98,7 @@ peers:
       ssl-target-name-override: peer0.org1.example.com
       grpc.keepalive_time_ms: 600000
     tlsCACerts:
-      path: ../org1/crypto-config-ca/peerOrganizations/org1.example.com/peers/peer0.org1.example.com/tls/tlscacerts/tls-localhost-7054-ca-org1-example-com.pem
+      path: /home/eranda/v2x-net/org1/crypto-config-ca/peerOrganizations/org1.example.com/peers/peer0.org1.example.com/tls/tlscacerts/tls-localhost-7054-ca-org1-example-com.pem
 
   peer1.org1.example.com:
     url: grpcs://localhost:8051
@@ -108,7 +106,7 @@ peers:
       ssl-target-name-override: peer1.org1.example.com
       grpc.keepalive_time_ms: 600000
     tlsCACerts:
-      path: ../org1/crypto-config-ca/peerOrganizations/org1.example.com/peers/peer1.org1.example.com/tls/tlscacerts/tls-localhost-7054-ca-org1-example-com.pem
+      path: /home/eranda/v2x-net/org1/crypto-config-ca/peerOrganizations/org1.example.com/peers/peer1.org1.example.com/tls/tlscacerts/tls-localhost-7054-ca-org1-example-com.pem
 
   peer0.org2.example.com:
     url: grpcs://localhost:9051
@@ -116,14 +114,14 @@ peers:
       ssl-target-name-override: peer0.org2.example.com
       grpc.keepalive_time_ms: 600000
     tlsCACerts:
-      path: ../org2/crypto-config-ca/peerOrganizations/org2.example.com/peers/peer0.org2.example.com/tls/tlscacerts/tls-localhost-8054-ca-org2-example-com.pem
+      path: /home/eranda/v2x-net/org2/crypto-config-ca/peerOrganizations/org2.example.com/peers/peer0.org2.example.com/tls/tlscacerts/tls-localhost-8054-ca-org2-example-com.pem
   peer1.org2.example.com:
     url: grpcs://localhost:10051
     grpcOptions:
       ssl-target-name-override: peer1.org2.example.com
       grpc.keepalive_time_ms: 600000
     tlsCACerts:
-      path: ../org2/crypto-config-ca/peerOrganizations/org2.example.com/peers/peer1.org2.example.com/tls/tlscacerts/tls-localhost-8054-ca-org2-example-com.pem 
+      path: /home/eranda/v2x-net/org2/crypto-config-ca/peerOrganizations/org2.example.com/peers/peer1.org2.example.com/tls/tlscacerts/tls-localhost-8054-ca-org2-example-com.pem 
 
 certificateAuthorities:
   ca.org1.example.com:
@@ -131,7 +129,7 @@ certificateAuthorities:
     httpOptions:
       verify: false
     tlsCACerts:
-      path: ../org1/crypto-config-ca/peerOrganizations/org1.example.com/tlsca/tlsca.org1.example.com-cert.pem
+      path: /home/eranda/v2x-net/org1/crypto-config-ca/peerOrganizations/org1.example.com/tlsca/tlsca.org1.example.com-cert.pem
     registrar:
       - enrollId: admin
         enrollSecret: adminpw
@@ -141,7 +139,7 @@ certificateAuthorities:
     httpOptions:
       verify: false
     tlsCACerts:
-      path: ../org2/crypto-config-ca/peerOrganizations/org2.example.com/tlsca/tlsca.org2.example.com-cert.pem
+      path: /home/eranda/v2x-net/org2/crypto-config-ca/peerOrganizations/org2.example.com/tlsca/tlsca.org2.example.com-cert.pem
     registrar:
       - enrollId: admin
         enrollSecret: adminpw

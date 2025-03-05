@@ -1,7 +1,3 @@
-/*
-SPDX-License-Identifier: Apache-2.0
-*/
-
 package main
 
 import (
@@ -116,7 +112,7 @@ func (s *SmartContract) EvaluateSafety(ctx contractapi.TransactionContextInterfa
 	}
 
 	// Check if all vehicles are in the same lane for the overtaking maneuver without lane change
-	if ov.Lane != lv.Lane || ov.Lane != ldv.Lane || ov.Lane != fdv.Lane {
+	if ov.Lane != lv.Lane || fdv.Lane != ldv.Lane {
 		return false, fmt.Errorf("vehicles are not in the same lane, overtaking without lane change not possible")
 	}
 
