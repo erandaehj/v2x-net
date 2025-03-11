@@ -3,6 +3,7 @@ package main
 import (
 	"encoding/json"
 	"fmt"
+	"strconv" // Added to parse string arguments
 	"github.com/hyperledger/fabric-contract-api-go/contractapi"
 )
 
@@ -53,7 +54,35 @@ func (s *SmartContract) InitLedger(ctx contractapi.TransactionContextInterface) 
 }
 
 // InitiateOvertakeProposal starts an overtaking proposal by the OV
-func (s *SmartContract) InitiateOvertakeProposal(ctx contractapi.TransactionContextInterface, dv, do, vr, vo, tr, sm float64) (bool, error) {
+func (s *SmartContract) InitiateOvertakeProposal(ctx contractapi.TransactionContextInterface, dvStr, doStr, vrStr, voStr, trStr, smStr string) (bool, error) {
+	// Parse the string inputs to float64 
+	dv, err := strconv.ParseFloat(dvStr, 64)
+	if err != nil {
+		return false, fmt.Errorf("failed to parse visibility distance: %v", err)
+	}
+	do, err := strconv.ParseFloat(doStr, 64)
+	if err != nil {
+		return false, fmt.Errorf("failed to parse overtaking distance: %v", err)
+	}
+	vr, err := strconv.ParseFloat(vrStr, 64)
+	if err != nil {
+		return false, fmt.Errorf("failed to parse relative speed: %v", err)
+	}
+	vo, err := strconv.ParseFloat(voStr, 64)
+	if err != nil {
+		return false, fmt.Errorf("failed to parse oncoming traffic speed: %v", err)
+	}
+	tr, err := strconv.ParseFloat(trStr, 64)
+	if err != nil {
+		return false, fmt.Errorf("failed to parse reaction time: %v", err)
+	}
+	sm, err := strconv.ParseFloat(smStr, 64)
+	if err != nil {
+		return false, fmt.Errorf("failed to parse safety margin: %v", err)
+	}
+	
+	
+	
 	// Create and store the proposal
 	proposal := OvertakeProposal{
 		Dv: dv,
