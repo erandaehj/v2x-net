@@ -55,34 +55,44 @@ func (s *SmartContract) InitLedger(ctx contractapi.TransactionContextInterface) 
 
 // InitiateOvertakeProposal starts an overtaking proposal by the OV
 func (s *SmartContract) InitiateOvertakeProposal(ctx contractapi.TransactionContextInterface, dvStr, doStr, vrStr, voStr, trStr, smStr string) (bool, error) {
-	// Parse the string inputs to float64 
-	dv, err := strconv.ParseFloat(dvStr, 64)
-	if err != nil {
-		return false, fmt.Errorf("failed to parse visibility distance: %v", err)
+	// Helper function to parse string to float64 with detailed error handling
+	parseFloat := func(valueStr, paramName string) (float64, error) {
+		if valueStr == "" {
+			return 0, fmt.Errorf("%s is required but received empty value", paramName)
+		}
+		parsedValue, err := strconv.ParseFloat(valueStr, 64)
+		if err != nil {
+			return 0, fmt.Errorf("failed to parse %s '%s': %v", paramName, valueStr, err)
+		}
+		return parsedValue, nil
 	}
-	do, err := strconv.ParseFloat(doStr, 64)
+
+	// Parse the string inputs to float64 with detailed error handling
+	dv, err := parseFloat(dvStr, "visibility distance")
 	if err != nil {
-		return false, fmt.Errorf("failed to parse overtaking distance: %v", err)
+		return false, err
 	}
-	vr, err := strconv.ParseFloat(vrStr, 64)
+	do, err := parseFloat(doStr, "overtaking distance")
 	if err != nil {
-		return false, fmt.Errorf("failed to parse relative speed: %v", err)
+		return false, err
 	}
-	vo, err := strconv.ParseFloat(voStr, 64)
+	vr, err := parseFloat(vrStr, "relative speed")
 	if err != nil {
-		return false, fmt.Errorf("failed to parse oncoming traffic speed: %v", err)
+		return false, err
 	}
-	tr, err := strconv.ParseFloat(trStr, 64)
+	vo, err := parseFloat(voStr, "oncoming traffic speed")
 	if err != nil {
-		return false, fmt.Errorf("failed to parse reaction time: %v", err)
+		return false, err
 	}
-	sm, err := strconv.ParseFloat(smStr, 64)
+	tr, err := parseFloat(trStr, "reaction time")
 	if err != nil {
-		return false, fmt.Errorf("failed to parse safety margin: %v", err)
+		return false, err
 	}
-	
-	
-	
+	sm, err := parseFloat(smStr, "safety margin")
+	if err != nil {
+		return false, err
+	}
+
 	// Create and store the proposal
 	proposal := OvertakeProposal{
 		Dv: dv,
@@ -92,7 +102,7 @@ func (s *SmartContract) InitiateOvertakeProposal(ctx contractapi.TransactionCont
 		Tr: tr,
 		Sm: sm,
 	}
-	
+
 	// Evaluate if it’s safe to overtake based on safety calculation and lane position
 	isSafe, err := s.EvaluateSafety(ctx, proposal)
 	if err != nil {
@@ -119,6 +129,7 @@ func (s *SmartContract) InitiateOvertakeProposal(ctx contractapi.TransactionCont
 
 	return isSafe, nil
 }
+
 
 // EvaluateSafety checks if the overtaking maneuver is safe based on parameters and vehicle positions
 func (s *SmartContract) EvaluateSafety(ctx contractapi.TransactionContextInterface, proposal OvertakeProposal) (bool, error) {
